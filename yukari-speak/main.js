@@ -10,26 +10,21 @@ function yukariSend(text,callback){
 
   request.post(options, function(error, res, body){
     if (!error && res.statusCode == 200) {
-  var returnUrl = "";
-//      console.log(body);
+      var returnUrl = "";
+      //      console.log(body);
       var bodySlashSplited = body.split('\"');
       var voiceUrl = bodySlashSplited[3]
-        voiceUrl = voiceUrl.replace(/\\\//g,"/")
-        console.log(voiceUrl)
+      voiceUrl = voiceUrl.replace(/\\\//g,"/")
+        //        console.log(voiceUrl)
       returnUrl = voiceUrl;
-/*    var callback = function (){console.log('done')}
+
       request.get(voiceUrl)
-        .on('response', function (res) {
-          console.log('statusCode: ', res.statusCode);
-          console.log('content-length: ', res.headers['content-length']);
-        })
-      .pipe(fs.createWriteStream(__dirname+"test.ogg")).on('close', callback);
-      */
+        .on('response', function (res) {})
+        .pipe(fs.createWriteStream(__dirname+"/test.ogg")).on('close', callback);
     } else {
       console.log('error: '+ response.statusCode);
       returnUrl = response.statusCode;
     }
-    callback(returnUrl);
   }); 
 }
 

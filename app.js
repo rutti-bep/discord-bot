@@ -1,14 +1,10 @@
 'use strict';
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const voiceChannel =  new Discord.VoiceChannel(client);
 const yukariSpeak = require('./yukari-speak/main.js')
 
-yukariSpeak.yukariSend("うにゃ",function(text){
-  console.log("yukari:",text)
-})
-
 var token = process.env.DISCORD_TOKEN;
+
 var japaripark = [
   "Welcome to ようこそジャパリパーク!",
   "今日もドッタンバッタン大騒ぎ",
@@ -37,12 +33,30 @@ var japaripark = [
   "ようこそジャパリパーク！"
 ].join("\n");
 
+
+
 client.on('ready', () => {
     console.log('I am ready!');
+    var speakChannelId = '';
+    client.channels.forEach(function(value){
+       if(value.name == "bot-test" && value.type == 'voice'){
+        speakChannelId = value.id
+        console.log(value.name,value.id);
+      }
+   });
+   let voiceChannel = client.channels.get(speakChannelId);
+
+   voiceChannel.join()
+     .then(connection =>  {
+        yukariSpeak.yukariSend("てすと",function(){
+          const dispatcher = connection.playFile(__dirname+"/yukari-speak/test.ogg",{});
+        })
+     })
+     .catch(console.error);
 });
 
 client.on('message', message => {
-  console.log(message);
+    console.log(message);
     if (message.content === 'ping') {
           message.reply('pong');
             }
