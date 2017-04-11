@@ -7,11 +7,9 @@ const cronSchedule  = require('./cronSchedule.js');
 
 var schedule = new cronSchedule.Schedule();
 
-
-
 var token = process.env.DISCORD_TOKEN;
-
 var connection;
+var clientIdRegexp;
 
 var japaripark = [
   "Welcome to ようこそジャパリパーク!",
@@ -39,50 +37,54 @@ var japaripark = [
   "ララララ ララララ Oh, Welcome to the ジャパリパーク！",
   "ララララ ララララララ 素敵な旅立ち",
   "ようこそジャパリパーク！"
-].join("\n");
+  ].join("\n");
 
-function yukariSend(text){
-      yukariSpeak.yukariSend(text,function(){
+  function yukariSend(text){
+    yukariSpeak.yukariSend(text,function(){
       const dispatcher = connection.playFile(__dirname+"/yukari-speak/test.ogg",{});
-      })
-}
+    })
+  }
 
 client.on('ready', () => {
-    console.log('I am ready!');
-    var speakChannelId = '';
-    client.channels.forEach(function(value){
-       if(value.name == "bot-test" && value.type == 'voice'){
-        speakChannelId = value.id
-        console.log(value.name,value.id);
-      }
-   });
-   let voiceChannel = client.channels.get(speakChannelId);
+  console.log('I am ready!');
+  console.log(client.user.id)
+  clientIdRegexp = new RegExp("<@"+client.user.id+">");
 
-   voiceChannel.join()
-     .then(_connection =>  {
-        connection = _connection;
-        //yukariSpeak.yukariSend(japaripark,function(){
-        //const dispatcher = connection.playFile(__dirname+"/yukari-speak/test.ogg",{});
-        //})
-        yukariSend("起動しました");
-     })
-     .catch(console.error);
-   schedule.add("0 0 * * * *",function(){yukariSend("おはよう")});
+  var speakChannelId = '';
+  client.channels.forEach(function(value){
+    if(value.name == "bot-test" && value.type == 'voice'){
+      speakChannelId = value.id
+        console.log(value.name,value.id);
+    }
+  });
+  let voiceChannel = client.channels.get(speakChannelId);
+
+  voiceChannel.join()
+    .then(_connection =>  {
+      connection = _connection;
+      yukariSend("起動しました");
+    })
+  .catch(console.error);
+  schedule.add("0 0 7-9 * * *",function(){yukariSend("おはよう")});
+  schedule.add("0 0 10-16 * * *",function(){yukariSend("こんにちは")});
+  schedule.add("0 0 17-6 * * *",function(){yukariSend("こんばんは")});
 
 });
 
 client.on('message', message => {
-    console.log(message);
+  console.log(message);
+  if (message.content.match(clientIdRegexp)){
     if (message.content === 'ping') {
-          yukariSend("pong");
-            }
+      yukariSend("pong");
+    }
     if (message.content.match(/ようこそジャパリパークへ/g)){
-         // message.channel.sendMessage(japaripark);
-         yukariSend(japaripark)
+      // message.channel.sendMessage(japaripark);
+      yukariSend(japaripark)
     }
     if (message.content.match(/N高/g)){
-        yukariSend('しね')
+      yukariSend('しね')
     }
+  }
 });
 
 
