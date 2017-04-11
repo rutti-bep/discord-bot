@@ -1,9 +1,17 @@
 'use strict';
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const yukariSpeak = require('./yukari-speak/main.js')
+
+const yukariSpeak = require('./yukari-speak/main.js');
+const cronSchedule  = require('./cronSchedule.js');
+
+var schedule = new cronSchedule.Schedule();
+
+
 
 var token = process.env.DISCORD_TOKEN;
+
+var connection;
 
 var japaripark = [
   "Welcome to ようこそジャパリパーク!",
@@ -33,7 +41,11 @@ var japaripark = [
   "ようこそジャパリパーク！"
 ].join("\n");
 
-
+function yukariSend(text){
+      yukariSpeak.yukariSend(text,function(){
+      const dispatcher = connection.playFile(__dirname+"/yukari-speak/test.ogg",{});
+      })
+}
 
 client.on('ready', () => {
     console.log('I am ready!');
@@ -47,21 +59,29 @@ client.on('ready', () => {
    let voiceChannel = client.channels.get(speakChannelId);
 
    voiceChannel.join()
-     .then(connection =>  {
-        yukariSpeak.yukariSend("てすと",function(){
-          const dispatcher = connection.playFile(__dirname+"/yukari-speak/test.ogg",{});
-        })
+     .then(_connection =>  {
+        connection = _connection;
+        //yukariSpeak.yukariSend(japaripark,function(){
+        //const dispatcher = connection.playFile(__dirname+"/yukari-speak/test.ogg",{});
+        //})
+        yukariSend("起動しました");
      })
      .catch(console.error);
+   schedule.add("0 0 * * * *",function(){yukariSend("おはよう")});
+
 });
 
 client.on('message', message => {
     console.log(message);
     if (message.content === 'ping') {
-          message.reply('pong');
+          yukariSend("pong");
             }
     if (message.content.match(/ようこそジャパリパークへ/g)){
-          message.channel.sendMessage(japaripark);
+         // message.channel.sendMessage(japaripark);
+         yukariSend(japaripark)
+    }
+    if (message.content.match(/N高/g)){
+        yukariSend('しね')
     }
 });
 
